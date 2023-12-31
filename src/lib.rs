@@ -10,9 +10,9 @@ impl Jrand {
 
     pub fn rnd(&mut self) -> u32 {
         self.seed = self.seed.wrapping_add(0xe120fc15);
-        let mut tmp: u128 = self.seed as u128 * 0x4a39b70d8;
+        let mut tmp: u64 = self.seed.wrapping_mul(0x4a39b70d8);
         let m1: u32 = ((tmp >> 32) ^ tmp) as u32;
-        tmp = m1 as u128 * 0x12fad5c9;
+        tmp = (m1 as u64).wrapping_mul(0x12fad5c9);
         let m2: u32 = ((tmp >> 32) ^ tmp) as u32;
         return m2;
     }
