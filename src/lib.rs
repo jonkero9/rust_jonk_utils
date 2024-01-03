@@ -1,13 +1,21 @@
+/// Random Number Generator Implementations
+/// Can be seeded for determinstic outcomes
 #[derive(Debug)]
 pub struct Jrand {
     pub seed: u64,
 }
 
 impl Jrand {
+    /// Creates a Random Number Generator.
+    ///
+    /// Initial seed equal to zero.
     pub fn new() -> Jrand {
         return Jrand { seed: 0 };
     }
 
+    /// Returns a random u32
+    ///
+    /// Mutates seed with wrapping addition
     pub fn rnd(&mut self) -> u32 {
         self.seed = self.seed.wrapping_add(0xe120fc15);
         let mut tmp: u64 = self.seed.wrapping_mul(0x4a39b70d8);
@@ -17,15 +25,25 @@ impl Jrand {
         return m2;
     }
 
+    /// Returns a random u32 within the given range, given max is exclusive.
+    ///
+    /// Interally calls self.rnd()
     pub fn rnd_range(&mut self, min: u32, max: u32) -> u32 {
         return (self.rnd() % (max - min)) + min;
     }
 
+    /// Return a random f32 in a given range, given max is exclusive.
+    ///
+    /// Interally calls self.rnd()
     pub fn rnd_range_float(&mut self, min: f32, max: f32) -> f32 {
         return (self.rnd() as f32 / u32::MAX as f32) * (max - min) + min;
     }
 }
 
+/// Uniquely Hash 2 Intergers, Returns U64
+///
+/// Uses cantor pairing function from source below:
+/// https://stackoverflow.com/a/13871379
 pub fn cantor_hash(a: i32, b: i32) -> u64 {
     let x: u64 = match a >= 0 {
         true => 2 * a as u64,
@@ -47,9 +65,8 @@ pub fn cantor_hash(a: i32, b: i32) -> u64 {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashSet;
-
     use super::*;
+    use std::collections::HashSet;
 
     #[test]
     fn rnd_test_seed_determinism_test() {
@@ -65,6 +82,16 @@ mod tests {
             results.push(o.rnd());
         }
         assert_eq!(expected, results);
+    }
+
+    #[test]
+    fn rnd_test_oveflowtest() {
+        let mut o = Jrand::new();
+        o.seed = u64::MAX;
+        for _i in 1..2000 {
+            o.rnd();
+        }
+        assert!(true);
     }
 
     #[test]
